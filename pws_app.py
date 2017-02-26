@@ -1,3 +1,6 @@
+"""
+author: bill thaman
+"""
 from lxml.html import parse
 from urllib import request
 from tkinter import *
