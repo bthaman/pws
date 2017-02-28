@@ -73,7 +73,7 @@ class App(ttk.LabelFrame):
         self.purchaseDict = {}
 
         # create a Pandas Excel writer using XlsxWriter as the engine.
-        xlsfile = os.path.join(os.getcwd(), 'output', self.county + '.xlsx')
+        xlsfile = os.path.join(os.getcwd(), self.county + '.xlsx')
         writer = pd.ExcelWriter(xlsfile, engine='xlsxwriter')
 
         # get the list of counties and the pws detail for each
@@ -335,7 +335,12 @@ class App(ttk.LabelFrame):
 
     @staticmethod
     def get_county():
-        db = os.getcwd() + os.sep + 'pws.db'
+        # db = os.getcwd() + os.sep + 'pws.db'
+        try:
+            db = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pws.db')
+        except NameError:
+            import sys
+            db = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'pws.db')
         conn = sqlite3.connect(db)
         conn.text_factory = conn.text_factory = lambda x: str(x, 'latin1')
         sql = "select cnty_name from county order by cnty_name"

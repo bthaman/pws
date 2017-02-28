@@ -1,4 +1,5 @@
 from lxml.html import parse
+from lxml import _elementpath as _dummy
 from urllib import request
 import re
 
