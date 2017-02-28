@@ -1,15 +1,11 @@
 """
 author: bill thaman
 """
-from lxml.html import parse
-from urllib import request
 from tkinter import *
 from tkinter import ttk
-import re
-import os
-from os.path import join
 import pandas as pd
-import pws_list_v2 as pl
+import os
+from pws_list_v2 import *
 import sqlite3
 
 
@@ -77,12 +73,12 @@ class App(ttk.LabelFrame):
         self.purchaseDict = {}
 
         # create a Pandas Excel writer using XlsxWriter as the engine.
-        xlsfile = join(os.getcwd(), 'output', self.county + '.xlsx')
+        xlsfile = os.path.join(os.getcwd(), 'output', self.county + '.xlsx')
         writer = pd.ExcelWriter(xlsfile, engine='xlsxwriter')
 
         # get the list of counties and the pws detail for each
         #     get a county pws object
-        county_pws = pl.CountyPWS()
+        county_pws = CountyPWS()
         #     get the urls for the selected county
         #     can be sliced --> county_pws.get_url(self.county.upper())[0:3]
         pws_list = county_pws.get_urls(self.county.upper())
@@ -355,6 +351,8 @@ class App(ttk.LabelFrame):
         self.root.mainloop()
 
 
+# app = App(buyers=True, purchases=True)
+# app.show()
 ########################################################################################################################
 # main code
 ########################################################################################################################

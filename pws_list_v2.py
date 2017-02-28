@@ -1,8 +1,6 @@
 from lxml.html import parse
 from urllib import request
 import re
-import pandas as pd
-import os
 
 
 class CountyPWS:
@@ -62,22 +60,3 @@ class CountyPWS:
             return [val.text_content() for val in elts]
         else:
             return None
-
-
-# main code
-if __name__ == "__main__":
-    county_pws = CountyPWS()
-    the_list = county_pws.get_pws_names('BAILEY')
-    # create a dataframe from the list
-    df = pd.DataFrame(the_list, columns=['PWS_NUM', 'PWS_NAME', 'URL'])
-
-    # create a Pandas Excel writer using XlsxWriter as the engine.
-    xlsfile = county_pws.get_county() + '.PWS.List' + '.xlsx'
-    writer = pd.ExcelWriter(xlsfile, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='PWS.List')
-
-    # close the Pandas Excel writer and output the Excel file.
-    writer.save()
-    # open the file
-    file = os.getcwd() + os.sep + xlsfile
-    os.startfile(file)
