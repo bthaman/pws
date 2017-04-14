@@ -7,6 +7,8 @@ import pandas as pd
 import os
 from pws_list_v2 import *
 import sqlite3
+import msgbox
+from urllib import request
 
 
 class App(ttk.LabelFrame):
@@ -22,6 +24,10 @@ class App(ttk.LabelFrame):
 
         self.entered_county = StringVar()
         self.entered_county.trace('w', self.handle_event)
+        self.chk_val_buyers = IntVar()
+        self.chk_val_buyers.trace('w', self.handle_event)
+        self.chk_val_purchases = IntVar()
+        self.chk_val_purchases.trace('w', self.handle_event)
 
         cmb_cnty = ttk.Combobox(self, textvariable=self.entered_county)
         cmb_cnty.grid(column=2, row=1, sticky=E)
@@ -30,7 +36,18 @@ class App(ttk.LabelFrame):
         # following line sets a default value
         # cmb_cnty.current(0)
 
+        self.num_systems = 0
+
         ttk.Label(self, text="County").grid(column=1, row=1, sticky=W)
+
+        # check boxes for buyers, purchases
+        self.chk_box_buyers = ttk.Checkbutton(self, text='List Buyers',
+                                              variable=self.chk_val_buyers)
+        self.chk_box_buyers.grid(column=2, row=2, sticky='W')
+        self.chk_box_purchases = ttk.Checkbutton(self, text='List Purchases',
+                                                 variable=self.chk_val_purchases)
+        self.chk_box_purchases.grid(column=2, row=3, sticky='W')
+
         self.btn_ok = ttk.Button(self, text='OK', width=7, command=self.okclick)
         self.btn_ok.grid(column=3, row=1, sticky='E')
         self.btn_ok.configure(state='disabled')
@@ -61,6 +78,8 @@ class App(ttk.LabelFrame):
     def okclick(self):
         self.county = self.entered_county.get()
         print(self.county)
+        self.buyers = self.chk_val_buyers.get()
+        self.purchases = self.chk_val_purchases.get()
 
         # reset dataframes and dictionaries
         self.df = pd.DataFrame()
@@ -83,9 +102,14 @@ class App(ttk.LabelFrame):
         #     can be sliced --> county_pws.get_url(self.county.upper())[0:3]
         pws_list = county_pws.get_urls(self.county.upper())
         max_to_process = len(pws_list)
+        self.num_systems = len(pws_list)
+
         for i, url in enumerate(pws_list[:max_to_process]):
             print(str(int(round((i + 1) / max_to_process * 100, 0))) + '% : ' + url)
-            self.pws_detail(url)
+            try:
+                self.pws_detail(url)
+            except Exception as e:
+                msgbox.show_error('Error', 'Error processing ' + url)
 
         # convert the dataframe to an XlsxWriter Excel object.
         self.df.to_excel(writer, sheet_name='Detail')
@@ -122,7 +146,7 @@ class App(ttk.LabelFrame):
         self.sourceDict = {'Sys Name': '', 'Sys Num': '', 'Source Name': '', 'Type': '',
                            'Activity': '', 'Availability': ''}
 
-        parsed = parse(request.urlopen(url))
+        parsed = parse(request.urlopen(url, timeout=10))
         doc = parsed.getroot()
         tables = doc.findall('.//table')
 
